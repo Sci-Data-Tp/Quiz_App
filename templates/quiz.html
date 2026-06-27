@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Quiz</title>
+</head>
+<body>
+
+<h2>Quiz: Probability and statistics</h2>
+
+<p>Time Left: <span id="time">30:00</span></p>
+
+
+<form action="/submit" method="post">
+
+    <input type="hidden" name="student_name" value="{{ student_name }}">
+    <input type="hidden" name="student_id" value="{{ student_id }}">
+    <input type="hidden" name="department" value="{{ department }}">
+
+    <p>Name: {{ student_name }}</p>
+    <p>Student ID: {{ student_id }}</p>
+    <p>Department: {{ department }}</p>
+
+{% for question in questions %}
+    <p><b>{{ question.question }}</b></p>
+    {% for op in question.options %}
+        <input type="radio" name="question_{{ question.id }}" value="{{ op }}" required> {{ op }}<br>
+    {% endfor %}
+    <br>
+{% endfor %}
+
+<button type="submit">Submit Quiz</button>
+
+
+
+</form>
+<script>
+let timeLeft = 30 * 60; // 30 minutes in seconds
+
+let timer = setInterval(function() {
+    if (timeLeft <= 0) {
+        clearInterval(timer);
+        document.getElementById("time").innerHTML = "Time's up!";
+        document.forms[0].submit(); // Automatically submit the form when time is up
+    } else {
+        let minutes = Math.floor(timeLeft / 60);
+        let seconds = timeLeft % 60;
+        document.getElementById("time").innerHTML = minutes + ":" + (seconds < 10 ? "0" : "") + seconds;
+    }
+    timeLeft--;
+}, 1000);
+</script>
+
+<script>
+    document.addEventListener("visibilitychange", function() {
+        if (document.hidden) {
+            alert("You have switched tabs or minimized the window. The quiz will be submitted automatically.");
+            document.forms[0].submit(); // Automatically submit the form when the user switches tabs
+        }
+    });
+</script>
+
+</body>
+</html>

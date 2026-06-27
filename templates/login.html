@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Student Quiz login</title>
+</head>
+<body>   
+    <h1>Student Quiz Login</h1>
+    <form action="/quiz" method="post">
+        <label><b>Name:</b></label><br>
+        <input type="text" name="name" required>
+        <br><br>
+        <label><b>Student ID:</b></label><br>
+        <input type="text" name="student_id" required>
+        <br><br>
+        <label><b>Department:</b></label><br>
+        <select name="department" required>
+            <option value="">Select Department</option>
+            <option>Computer Science</option>
+            <option>IT</option>
+            <option>Civil</option>
+            <option>E&C</option>
+            <option>ME</option>
+            <option>IP</option>
+        </select>
+        <br><br>
+        <button type="submit">Login</button>
+    </form>
+</body>
+</html>
