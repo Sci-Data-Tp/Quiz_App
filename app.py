@@ -1,5 +1,6 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, Response
 import sqlite3
+import csv
 
 app = Flask(__name__)
 
@@ -121,6 +122,28 @@ def results():
     
     return render_template('results.html', data=data)
 
+@app.route("/download")
+def download():
+    conn = sqlite3.connect('quiz.db')
+    cursor = conn.cursor()
+
+    cursor.execute("SELECT * FROM results")
+    data = cursor.fetchall()
+
+    conn.close()
+
+    output = []
+    output.append(['ID', 'Student Name', 'Student ID', 'Department', 'Score'])
+    output.extend(data)
+
+    # Create a CSV response
+    def generate():
+        yield ','.join(['ID', 'Student Name', 'Student ID', 'Department', 'Score']) + '\n'
+        for row in data:
+            yield ','.join(map(str, row)) + '\n'
+
+    return Response(generate(), mimetype='text/csv',
+                    headers={'Content-Disposition': 'attachment; filename=results.csv'})
 
 
 
