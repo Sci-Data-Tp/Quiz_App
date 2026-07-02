@@ -8,9 +8,9 @@ questions = [
     
     {
         "id": 1,
-        'question': 'What is the capital of France?',
-        'options': ['A. Berlin', 'B. Madrid', 'C. Paris', 'D. Rome'],
-        'answer': 'C. Paris'
+        'question': 'Which measure is most affected by extreme values?',
+        'options': ['A. Median', 'B. Mode', 'C. Quartile', 'D. Mean'],
+        'answer': 'C. Median'
     },
     {
         "id": 2,
