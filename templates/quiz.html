@@ -1,13 +1,84 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <meta name = "viewport" content = "width=device-width, initial-scale=1.0">
     <title>Quiz</title>
+    <style>
+        body{
+            margin: 0;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+            background-color: #f2f2f2;
+        }
+    .container{
+        max-width: 800px;
+        margin: auto;
+        background-color: #fff;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    }
+    h2 {
+        text-align: center;
+        color: #333;
+    }
+
+    .question {
+        font-size: 22px;
+        font-weight: bold;
+        margin-top: 20px;
+    }
+    label {
+        display: block;
+        padding: 8px 0;
+        font-size: 18px;
+    }
+    input[type="radio"] {
+        transform: scale(1.3); 
+        margin-right: 10px;
+    }
+    button {
+        background-color: #4CAF50;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 16px;
+    }
+    .top-bar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+    .timer-box {
+        background-color: #f44336;
+        color: white;
+        padding: 12px 18px;
+        border-radius: 8px;
+        text-align: center;
+        font-weight: bold;
+    }
+    </style>
 </head>
 <body>
+<div class="container">
 
 <h2>Quiz: Probability and statistics</h2>
 
-<p>Time Left: <span id="time">30:00</span></p>
+<div class="top-bar">
+    <div class="student-info">
+        <p>Name: {{ student_name }}</p>
+        <p>Student ID: {{ student_id }}</p>
+        <p>Department: {{ department }}</p>
+    </div>
+
+    <div class="timer-box">
+        Time Left<br>
+        <span id="time">30:00</span>
+    </div>
+</div>
 
 
 <form action="/submit" method="post">
@@ -16,12 +87,10 @@
     <input type="hidden" name="student_id" value="{{ student_id }}">
     <input type="hidden" name="department" value="{{ department }}">
 
-    <p>Name: {{ student_name }}</p>
-    <p>Student ID: {{ student_id }}</p>
-    <p>Department: {{ department }}</p>
+
 
 {% for question in questions %}
-    <p><b>{{ question.question }}</b></p>
+    <p class="question">{{ loop.index }}. {{ question.question }}</p>
     {% for op in question.options %}
         <input type="radio" name="question_{{ question.id }}" value="{{ op }}" required> {{ op }}<br>
     {% endfor %}
@@ -33,6 +102,7 @@
 
 
 </form>
+</div>
 <script>
 let timeLeft = 30 * 60; // 30 minutes in seconds
 
