@@ -2,6 +2,8 @@ from flask import Flask, render_template, request, Response
 import sqlite3
 import csv
 
+ADMIN_PASSWORD = "stats@2026"
+
 app = Flask(__name__)
 
 questions = [
@@ -137,11 +139,16 @@ def submit():
 @app.route('/results')
 def results():
 
+    password = request.args.get("password")
+
+    if password != ADMIN_PASSWORD:
+        return "Unauthorized access. Please provide the correct password."
+
     conn = sqlite3.connect('quiz.db')
     cursor = conn.cursor()
 
-    # cursor.execute("Delete From results")
-    # cursor.execute("Delete From sqlite_sequence WHERE name='results'")
+    cursor.execute("Delete From results")
+    cursor.execute("Delete From sqlite_sequence WHERE name='results'")
 
     conn.commit()
 
