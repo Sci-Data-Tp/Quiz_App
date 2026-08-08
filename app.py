@@ -1,10 +1,35 @@
 from flask import Flask, render_template, request, Response
-import sqlite3
+import os
+#import sqlite3
+import psycopg
 import csv
 
 ADMIN_PASSWORD = "stats@2026"
 
 app = Flask(__name__)
+
+DATABASE_URL = os.environ.get("DATABASE_URL")
+
+def get_db():
+    return psycopg.connect(DATABASE_URL)
+
+def create_db():
+    conn = get_db()
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS results (
+            id SERIAL PRIMARY KEY,
+            student_name TEXT NOT NULL,
+            student_id TEXT UNIQUE NOT NULL,
+            department TEXT,
+            score INTEGER NOT NULL
+        )
+    """)
+
+    conn.commit()
+    cursor.close()
+    conn.close()
 
 questions = [
     
@@ -70,22 +95,22 @@ questions = [
     }
 ]
 
-def create_db():
-    conn = sqlite3.connect('quiz.db')
-    cursor = conn.cursor()
+# def create_db():
+#     conn = sqlite3.connect('quiz.db')
+#     cursor = conn.cursor()
 
-    cursor.execute('''
-                   CREATE TABLE IF NOT EXISTS results (
-                     id INTEGER PRIMARY KEY AUTOINCREMENT,
-                     student_name TEXT,
-                     student_id INTEGER unique,
-                     department TEXT,
-                     score INTEGER
-                   )
-                    ''')
+#     cursor.execute('''
+#                    CREATE TABLE IF NOT EXISTS results (
+#                      id INTEGER PRIMARY KEY AUTOINCREMENT,
+#                      student_name TEXT,
+#                      student_id INTEGER unique,
+#                      department TEXT,
+#                      score INTEGER
+#                    )
+#                     ''')
 
-    conn.commit()
-    conn.close()
+#     conn.commit()
+#     conn.close()
 
 create_db()    
 
@@ -99,6 +124,22 @@ def quiz():
     student_name = request.form.get('name')
     student_id = request.form.get('student_id')
     department = request.form.get('department')
+
+    conn = get_db()
+    cursor = conn.cursor()
+
+    cursor.execute(
+        "SELECT 1 FROM results WHERE student_id = %s",
+        (student_id,)
+    )
+
+    already_attempted = cursor.fetchone()
+
+    cursor.close()
+    conn.close()
+
+    if already_attempted:
+        return "This Student ID has already attempted the quiz. You cannot attempt it again."
 
     return render_template('quiz.html', questions=questions,
                            student_name=student_name, student_id=student_id, department=department)
@@ -120,19 +161,47 @@ def submit():
         if user_answer == question['answer']:
             score += 1
 
-    conn = sqlite3.connect('quiz.db')
+    conn = get_db()
     cursor = conn.cursor()
 
-    cursor.execute(
-        """
-        INSERT INTO results (student_name, student_id, department, score) VALUES (?, ?, ?, ?)
-        """,
-        (student_name, student_id, department, score)
-    )
-    conn.commit()
+    try:
+        cursor.execute(
+            """
+            INSERT INTO results
+            (student_name, student_id, department, score)
+            VALUES (%s, %s, %s, %s)
+            """,
+            (student_name, student_id, department, score)
+        )
+        conn.commit()
+
+    except psycopg.errors.UniqueViolation:
+        conn.rollback()
+        cursor.close()
+        conn.close()
+        return "This Student ID has already submitted the quiz. You cannot submit again."
+
+    cursor.close()
     conn.close()
 
     return "Submitted"
+
+    # cursor.close()
+    # conn.close()
+
+    # conn = sqlite3.connect('quiz.db')
+    # cursor = conn.cursor()
+
+    # cursor.execute(
+    #     """
+    #     INSERT INTO results (student_name, student_id, department, score) VALUES (?, ?, ?, ?)
+    #     """,
+    #     (student_name, student_id, department, score)
+    # )
+    # conn.commit()
+    # conn.close()
+
+    # return "Submitted"
     
 
     # Process the submitted quiz answers
@@ -144,15 +213,18 @@ def results():
     if password != ADMIN_PASSWORD:
         return "Unauthorized access. Please provide the correct password."
 
-    conn = sqlite3.connect('quiz.db')
+    conn = get_db()
     cursor = conn.cursor()
+
+    # conn = sqlite3.connect('quiz.db')
+    # cursor = conn.cursor()
 
     #cursor.execute("Delete From results")
     #cursor.execute("Delete From sqlite_sequence WHERE name='results'")
 
     conn.commit()
 
-    cursor.execute("SELECT * FROM results")
+    cursor.execute("SELECT * FROM results ORDER BY ID")
     print("Inserting data into the database...")
     data = cursor.fetchall()
 
@@ -163,10 +235,13 @@ def results():
 
 @app.route("/download")
 def download():
-    conn = sqlite3.connect('quiz.db')
-    cursor = conn.cursor()
 
-    cursor.execute("SELECT * FROM results")
+    conn = get_db()
+    cursor = conn.cursor()
+    # conn = sqlite3.connect('quiz.db')
+    # cursor = conn.cursor()
+
+    cursor.execute("SELECT * FROM results ORDER BY ID")
     data = cursor.fetchall()
 
     conn.close()
@@ -184,7 +259,7 @@ def download():
     return Response(generate(), mimetype='text/csv',
                     headers={'Content-Disposition': 'attachment; filename=results.csv'})
 
-
+create_db()
 
 if __name__ == '__main__':
     app.run(debug=True)
