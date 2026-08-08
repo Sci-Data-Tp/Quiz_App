@@ -112,8 +112,8 @@ def quiz():
         # If quiz is already active, do not restart the timer
         if 'quiz_start_time' not in session:
 
-            session['studen_name'] = request.form.get('name')
-            session['studen_id'] = request.form.get('student_id')
+            session['student_name'] = request.form.get('name')
+            session['student_id'] = request.form.get('student_id')
             session['department'] = request.form.get('department')
 
             session['quiz_start_time'] = time.time()
@@ -182,6 +182,8 @@ def submit():
 
     cursor.close()
     conn.close()
+
+    session.clear()
 
     return "Submitted"
 
