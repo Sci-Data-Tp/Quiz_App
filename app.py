@@ -1,12 +1,13 @@
-from flask import Flask, render_template, request, Response
+from flask import Flask, render_template, request, Response, session
 import os
-
+import time
 import psycopg
 import csv
 
 ADMIN_PASSWORD = "stats@2026"
 
 app = Flask(__name__)
+app.secret_key = "quiz-secret-key-2026"
 
 DATABASE_URL = os.environ.get("DATABASE_URL")
 
@@ -106,28 +107,41 @@ def home():
 @app.route('/quiz', methods=['POST'])
 def quiz():
 
-    student_name = request.form.get('name')
-    student_id = request.form.get('student_id')
-    department = request.form.get('department')
+    if request.method == 'POST':
 
-    conn = get_db()
-    cursor = conn.cursor()
+        # If quiz is already active, do not restart the timer
+        if 'quiz_start_time' not in session:
 
-    cursor.execute(
-        "SELECT 1 FROM results WHERE student_id = %s",
-        (student_id,)
+            session['studen_name'] = request.form.get('name')
+            session['studen_id'] = request.form.get('student_id')
+            session['department'] = request.form.get('department')
+
+            session['quiz_start_time'] = time.time()
+
+    # Get student information from session
+    student_name = session.get('student_name')
+    student_id = session.get('student_id')
+    department = session.get('department')
+
+    # If there is no active quiz, go to login
+    if not student_name or not student_id or not department:
+        return render_template('login.html')
+
+    # Calculate remaining time
+    elapsed = time.time() - session['quiz_start_time']
+    remaining_time = max(0, int(30 * 60 - elapsed))
+
+    return render_template(
+        'quiz.html',
+        questions=questions,
+        student_name=student_name,
+        student_id=student_id,
+        department=department,
+        remaining_time=remaining_time
     )
 
-    already_attempted = cursor.fetchone()
 
-    cursor.close()
-    conn.close()
 
-    if already_attempted:
-        return "This Student ID has already attempted the quiz. You cannot attempt it again."
-
-    return render_template('quiz.html', questions=questions,
-                           student_name=student_name, student_id=student_id, department=department)
 
 @app.route('/submit', methods=['POST'])
 def submit():

@@ -104,19 +104,29 @@
 </form>
 </div>
 <script>
-let timeLeft = 30 * 60; // 30 minutes in seconds
+let timeLeft = {{ remaining_time }};
 
 let timer = setInterval(function() {
+
     if (timeLeft <= 0) {
+
         clearInterval(timer);
+
         document.getElementById("time").innerHTML = "Time's up!";
-        document.forms[0].submit(); // Automatically submit the form when time is up
+
+        document.forms[0].submit();
+
     } else {
+
         let minutes = Math.floor(timeLeft / 60);
         let seconds = timeLeft % 60;
-        document.getElementById("time").innerHTML = minutes + ":" + (seconds < 10 ? "0" : "") + seconds;
+
+        document.getElementById("time").innerHTML =
+            minutes + ":" + (seconds < 10 ? "0" : "") + seconds;
+
+        timeLeft--;
     }
-    timeLeft--;
+
 }, 1000);
 </script>
 
@@ -127,6 +137,14 @@ let timer = setInterval(function() {
             document.forms[0].submit(); // Automatically submit the form when the user switches tabs
         }
     });
+</script>
+
+<script>
+history.pushState(null, "", location.href);
+
+window.addEventListener("popstate", function () {
+    history.pushState(null, "", location.href);
+});
 </script>
 
 </body>
