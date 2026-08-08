@@ -147,8 +147,8 @@ def results():
     conn = sqlite3.connect('quiz.db')
     cursor = conn.cursor()
 
-    cursor.execute("Delete From results")
-    cursor.execute("Delete From sqlite_sequence WHERE name='results'")
+    #cursor.execute("Delete From results")
+    #cursor.execute("Delete From sqlite_sequence WHERE name='results'")
 
     conn.commit()
 
