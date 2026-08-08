@@ -202,8 +202,7 @@ def download():
 
     conn = get_db()
     cursor = conn.cursor()
-    # conn = sqlite3.connect('quiz.db')
-    # cursor = conn.cursor()
+
 
     cursor.execute("SELECT * FROM results ORDER BY ID")
     data = cursor.fetchall()
