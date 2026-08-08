@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, Response
 import os
-#import sqlite3
+
 import psycopg
 import csv
 
@@ -95,22 +95,7 @@ questions = [
     }
 ]
 
-# def create_db():
-#     conn = sqlite3.connect('quiz.db')
-#     cursor = conn.cursor()
 
-#     cursor.execute('''
-#                    CREATE TABLE IF NOT EXISTS results (
-#                      id INTEGER PRIMARY KEY AUTOINCREMENT,
-#                      student_name TEXT,
-#                      student_id INTEGER unique,
-#                      department TEXT,
-#                      score INTEGER
-#                    )
-#                     ''')
-
-#     conn.commit()
-#     conn.close()
 
 create_db()    
 
@@ -186,22 +171,6 @@ def submit():
 
     return "Submitted"
 
-    # cursor.close()
-    # conn.close()
-
-    # conn = sqlite3.connect('quiz.db')
-    # cursor = conn.cursor()
-
-    # cursor.execute(
-    #     """
-    #     INSERT INTO results (student_name, student_id, department, score) VALUES (?, ?, ?, ?)
-    #     """,
-    #     (student_name, student_id, department, score)
-    # )
-    # conn.commit()
-    # conn.close()
-
-    # return "Submitted"
     
 
     # Process the submitted quiz answers
@@ -216,11 +185,6 @@ def results():
     conn = get_db()
     cursor = conn.cursor()
 
-    # conn = sqlite3.connect('quiz.db')
-    # cursor = conn.cursor()
-
-    #cursor.execute("Delete From results")
-    #cursor.execute("Delete From sqlite_sequence WHERE name='results'")
 
     conn.commit()
 
