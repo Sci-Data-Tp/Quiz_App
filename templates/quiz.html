@@ -131,19 +131,25 @@ let timer = setInterval(function() {
 </script>
 
 <script>
-    document.addEventListener("visibilitychange", function() {
-        if (document.hidden) {
-            alert("You have switched tabs or minimized the window. The quiz will be submitted automatically.");
-            document.forms[0].submit(); // Automatically submit the form when the user switches tabs
-        }
-    });
-</script>
+let quizSubmitted = false;
 
-<script>
+function submitQuiz() {
+    if (quizSubmitted) return;
+    quizSubmitted = true;
+    document.forms[0].submit();
+}
+
 history.pushState(null, "", location.href);
 
 window.addEventListener("popstate", function () {
-    history.pushState(null, "", location.href);
+    alert("Back button detected. Your quiz is being submitted.");
+    submitQuiz();
+});
+
+document.addEventListener("visibilitychange", function () {
+    if (document.hidden) {
+        submitQuiz();
+    }
 });
 </script>
 
