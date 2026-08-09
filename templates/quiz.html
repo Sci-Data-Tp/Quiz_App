@@ -142,12 +142,14 @@ function submitQuiz() {
 history.pushState(null, "", location.href);
 
 window.addEventListener("popstate", function () {
-    alert("Back button detected. Your quiz is being submitted.");
-    submitQuiz();
-});
 
-document.addEventListener("visibilitychange", function () {
-    if (document.hidden) {
+    history.pushState(null, "", location.href);
+
+    let confirmLeave = confirm(
+        "Are you sure you want to leave? Your quiz will be submitted."
+    );
+
+    if (confirmLeave) {
         submitQuiz();
     }
 });
